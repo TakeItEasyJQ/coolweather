@@ -1,5 +1,6 @@
 package com.coolweather.android;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.coolweather.android.gson.Forecast;
 import com.coolweather.android.gson.Weather;
+import com.coolweather.android.service.AutoUpdateServier;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
@@ -46,7 +48,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView sportText;
     private ImageView bingPicImg;
     public SwipeRefreshLayout swipeRefresh;
-    private String mWeather;
+    public String mWeather;
     public DrawerLayout drawerLayout;
     private Button navButton;
     @Override
@@ -90,7 +92,7 @@ public class WeatherActivity extends AppCompatActivity {
         }else{
 //            String weatherId=getIntent().getStringExtra("weather_id");
             mWeather=getIntent().getStringExtra("weather_id");         //此前在这里出了个错   错误写为Sring mWeather=... 此时为新的对象并不是外面的没Weather了
-            weatherlayout.setVisibility(View.INVISIBLE);
+            weatherlayout.setVisibility(View.INVISIBLE);          //此时mWeather已赋值为weatherId
             requestWeather(mWeather);
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -124,6 +126,8 @@ public class WeatherActivity extends AppCompatActivity {
                             editor.putString("weather",responseText);
                             editor.apply();
                             showWeatherInfo(weather);
+                            Intent intent=new Intent(WeatherActivity.this, AutoUpdateServier.class);
+                            startService(intent);
                         }else {
                             Toast.makeText(WeatherActivity.this,"获取天气信息失败",Toast.LENGTH_SHORT).show();
                         }

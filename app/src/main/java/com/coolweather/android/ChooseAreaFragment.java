@@ -93,7 +93,8 @@ public class ChooseAreaFragment extends Fragment {
                         getActivity().finish();
                     }else if (getActivity() instanceof WeatherActivity){
                         WeatherActivity activity=(WeatherActivity)getActivity();
-                        activity.mWeather=weatherId;
+                        activity.mWeather=weatherId;             //当你在WeatherActivity的碎片中切换城市后需要吧此时WeatherActivity中的mWeather也更新为切换后的城市的
+                                                             //weatherId，否则在WeatherActivity中的mWeather没有改变，依旧是第一次选泽的城市的weatherId
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherId);
