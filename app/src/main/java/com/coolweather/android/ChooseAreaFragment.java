@@ -65,6 +65,7 @@ public class ChooseAreaFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.list_view);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, datalist);
         listView.setAdapter(adapter);
+
         return view;
     }
 
@@ -82,10 +83,21 @@ public class ChooseAreaFragment extends Fragment {
                     queryCountries();
                 }else if (currentLevel==LEVEL_COUNTRY){
                     String weatherId=countryList.get(position).getWeatherId();
-                    Intent intent=new Intent(getActivity(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    if (getActivity() instanceof MainActivity){
+                        //getActivity()得到的时碎片的实例，关键字用来判断此时碎片属于哪一个活动
+                        //如果属于MainActivity则打开WeatherActivity，如果属于WeatherActivity则关掉滑动菜单、现实下拉刷全新进度并请求天气数据
+                        //requestWeather()中会在请求完天气数据之后关闭下拉刷新进度条
+                        Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if (getActivity() instanceof WeatherActivity){
+                        WeatherActivity activity=(WeatherActivity)getActivity();
+                        activity.mWeather=weatherId;
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
                 }
             }
         });
