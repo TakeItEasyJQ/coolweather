@@ -2,7 +2,9 @@ package com.coolweather.android;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -18,10 +20,11 @@ import android.widget.Toast;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.Country;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.db.QuickCity;
+import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
-import org.litepal.LitePal;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
@@ -51,10 +54,12 @@ public class ChooseAreaFragment extends Fragment {
     private List<City> cityList;
     private List<Country> countryList;
 
+    private static List<QuickCity>  quickCityList;
+
     private Province selectedProvince;   //选中的省
     private City selectedCity;
 
-    private int currentLevel;          //当前选中的级别
+    private static int currentLevel;          //当前选中的级别
 
     @Nullable
     @Override
@@ -82,7 +87,7 @@ public class ChooseAreaFragment extends Fragment {
                     selectedCity = cityList.get(position);
                     queryCountries();
                 }else if (currentLevel==LEVEL_COUNTRY){
-                    String weatherId=countryList.get(position).getWeatherId();
+                    final String weatherId=countryList.get(position).getWeatherId();
                     if (getActivity() instanceof MainActivity){
                         //getActivity()得到的时碎片的实例，关键字用来判断此时碎片属于哪一个活动
                         //如果属于MainActivity则打开WeatherActivity，如果属于WeatherActivity则关掉滑动菜单、现实下拉刷全新进度并请求天气数据
@@ -93,11 +98,45 @@ public class ChooseAreaFragment extends Fragment {
                         getActivity().finish();
                     }else if (getActivity() instanceof WeatherActivity){
                         WeatherActivity activity=(WeatherActivity)getActivity();
-                        activity.mWeather=weatherId;             //当你在WeatherActivity的碎片中切换城市后需要吧此时WeatherActivity中的mWeather也更新为切换后的城市的
+                        WeatherActivity.mWeatherId=weatherId;             //当你在WeatherActivity的碎片中切换城市后需要吧此时WeatherActivity中的mWeather也更新为切换后的城市的
                                                              //weatherId，否则在WeatherActivity中的mWeather没有改变，依旧是第一次选泽的城市的weatherId
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherId);
+                    }
+                    else if (getActivity() instanceof ChooseCityActivity){     //是不是得写成一个AysnTask
+
+                        String weatherUrl = "https://free-api.heweather.com/v5/weather?city=" + weatherId + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
+                        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                Toast.makeText(getActivity(), "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                final String responseText=response.body().string();
+                                final Weather weather= Utility.handleWeatherResponse(responseText);
+                                final String weatherid=weather.basic.weatherId;
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        QuickCity quickCity=Utility.handleQuickCityResponse(weather);
+                                        quickCity.save();
+                                        queryQuickCities();                                               //更新QuickcityFragment中的列表
+                                        WeatherActivity.mWeatherId=weatherid;
+                                        Intent intent=new Intent(getContext(),WeatherActivity.class);
+                                        intent.putExtra("change","new");
+                                        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                                        editor.putString("weather",responseText);
+                                        editor.apply();
+                                        startActivity(intent);
+                                        getActivity().finish();
+                                    }
+                                });
+                            }
+                        });
                     }
                 }
             }
@@ -170,6 +209,19 @@ public class ChooseAreaFragment extends Fragment {
             String address="http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
             queryFromServer(address,"country");
         }
+    }
+
+    public static void queryQuickCities(){
+         quickCityList=DataSupport.findAll(QuickCity.class);
+        if (quickCityList.size()>0){
+            QuickCityFragment.cityList.clear();
+            for (QuickCity quickCity:quickCityList){
+                QuickCityFragment.cityList.add(quickCity);
+            }
+            QuickCityFragment.adaper.notifyDataSetChanged();                                         //我的理解是notifyDataSetChanged()自动更新UI
+            currentLevel=LEVEL_COUNTRY;
+        }
+
     }
 
     private void queryFromServer(String address, final String type) {

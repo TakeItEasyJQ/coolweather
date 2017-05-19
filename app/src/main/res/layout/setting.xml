@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+        <TextView
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:text="后台更新"
+            android:textSize="25sp"
+            android:textColor="#000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ToggleButton
+            android:id="@+id/toggle_button"
+            android:text="关闭"
+            android:textOn="开启"
+            android:textOff="关闭"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:shadowColor="#fff"
+            android:layout_marginRight="15dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/time_layout"
+        android:orientation="vertical"
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:text="间隔"
+            android:gravity="center"
+            android:textColor="#000"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <Button
+                    android:layout_gravity="center"
+                    android:id="@+id/button_one"
+                    android:background="@drawable/img_1"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <Button
+                    android:layout_gravity="center"
+                    android:id="@+id/button_two"
+                    android:background="@drawable/img_2"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp" />
+            </LinearLayout>
+           <LinearLayout
+               android:orientation="vertical"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="wrap_content">
+               <Button
+                   android:layout_gravity="center"
+                   android:id="@+id/button_four"
+                   android:background="@drawable/img_4"
+                   android:layout_width="60dp"
+                   android:layout_height="60dp" />
+           </LinearLayout>
+           <LinearLayout
+               android:orientation="vertical"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="wrap_content">
+               <Button
+                   android:layout_gravity="center"
+                   android:id="@+id/button_eight"
+                   android:background="@drawable/img_8"
+                   android:layout_width="60dp"
+                   android:layout_height="60dp" />
+           </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+        <TextView
+            android:text="背景图片"
+            android:textColor="#000"
+            android:textSize="25sp"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/change_background"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="更换"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+        <TextView
+            android:textSize="25sp"
+            android:textColor="#000"
+            android:layout_centerVertical="true"
+            android:text="背景使用每日一图"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ToggleButton
+            android:id="@+id/toggle_button2"
+            android:text="关闭"
+            android:textOn="开启"
+            android:textOff="关闭"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:shadowColor="#fff"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+</LinearLayout>

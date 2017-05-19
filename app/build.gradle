@@ -11,6 +11,14 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    productFlavors{
+        qihoo{
+            applicationId"com.coolweather.android.qihoo"
+        }
+        baidu{
+            applicationId"com.coolweather.android.baidu"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -29,5 +37,6 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support:design:25.2.0'
     testCompile 'junit:junit:4.12'
 }

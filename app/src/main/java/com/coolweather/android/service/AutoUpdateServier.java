@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.coolweather.android.gson.Weather;
@@ -21,6 +22,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class AutoUpdateServier extends Service {
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
@@ -31,13 +33,16 @@ public class AutoUpdateServier extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         updateWeather();
         updateBingPic();
+        int  hour=intent.getIntExtra("time",8);
         AlarmManager manager=(AlarmManager)getSystemService(ALARM_SERVICE);
+//        int anHour=hour*60*60*1000;
         int anHour=8*60*60*1000;
         long triggerAtTime= SystemClock.elapsedRealtime()+anHour;
         Intent i=new Intent(this,AutoUpdateServier.class);
         PendingIntent pi=PendingIntent.getActivity(this,0,i,0);
         manager.cancel(pi);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
+        Log.d("AutoService", "onStartCommand: "+hour);
         return super.onStartCommand(intent,flags,startId);
     }
     private void updateWeather(){
@@ -82,5 +87,17 @@ public class AutoUpdateServier extends Service {
                 editor.apply();
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("AutoService", "onDestroy: destroy servier");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("AutoService", "onCreate:create servier ");
     }
 }

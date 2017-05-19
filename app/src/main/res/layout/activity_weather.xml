@@ -40,10 +40,13 @@
         </android.support.v4.widget.SwipeRefreshLayout>
         <fragment
             android:id="@+id/choose_area_fragment"
-            android:name="com.coolweather.android.ChooseAreaFragment"
+            android:name="com.coolweather.android.QuickCityFragment"
             android:layout_gravity="start"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <!--android:id="@+id/quick_city_fragment"-->
+            <!--android:name="com.coolweather.android.QuickCityFragment"-->
         </fragment>
 
     </android.support.v4.widget.DrawerLayout>

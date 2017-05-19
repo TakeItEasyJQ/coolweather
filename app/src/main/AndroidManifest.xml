@@ -24,7 +24,10 @@
         <service
             android:name=".service.AutoUpdateServier"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".ChooseCityActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.Country;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.db.QuickCity;
 import com.coolweather.android.gson.Weather;
 import com.google.gson.Gson;
 
@@ -86,5 +87,15 @@ public class Utility {
             e.printStackTrace();
         }
         return  null;
+    }
+    public static QuickCity handleQuickCityResponse(Weather weather){
+        String cityName=weather.basic.cityname;
+        String cityDegree=weather.now.temperature+"℃";
+        String weatherId=weather.basic.weatherId;
+        QuickCity quickCity=new QuickCity();
+        quickCity.setCityName(cityName);
+        quickCity.setCityDegree(cityDegree);
+        quickCity.setWeatherid(weatherId);
+        return quickCity;
     }
 }
