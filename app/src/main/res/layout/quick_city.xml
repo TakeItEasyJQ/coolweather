@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
-        android:background="@color/colorPrimary"
+        android:background="#4a79d8"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
         <Button
@@ -28,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ListView
+            android:background="@drawable/img_itembg"
             android:id="@+id/quick_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"></ListView>

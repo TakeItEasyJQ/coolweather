@@ -5,15 +5,13 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.coolweather.android.gson.Weather;
+
 import com.coolweather.android.service.AutoUpdateServier;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener{
@@ -25,6 +23,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private Button button2;
     private Button button4;
     private Button button8;
+    private Button changebg;
     public static final boolean AUTOSERVICE=true;   //  开启自动更新
     public static final boolean DISSERVICE=false;   //  关闭自动更新
     public static final boolean BINGPIC=true;       //  使用每日一图
@@ -49,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         button2=(Button)findViewById(R.id.button_two);
         button4=(Button)findViewById(R.id.button_four);
         button8=(Button)findViewById(R.id.button_eight);
-
+        changebg=(Button)findViewById(R.id.change_background);
         if (prefs.getBoolean("MODE",false)){
             toggleButton.setChecked(true);
             timelayout.setVisibility(View.VISIBLE);
@@ -59,8 +58,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
         if (pref.getBoolean("mode",false)){
             toggleButton2.setChecked(true);
+            SettingsActivity.USEBINGPIC=SettingsActivity.BINGPIC;
         }else {
             toggleButton2.setChecked(false);
+            SettingsActivity.USEBINGPIC=SettingsActivity.DISBING;
         }
         toggleButton.setOnClickListener(this);
         toggleButton2.setOnClickListener(this);
@@ -68,6 +69,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         button2.setOnClickListener(this);
         button4.setOnClickListener(this);
         button8.setOnClickListener(this);
+        changebg.setOnClickListener(this);
     }
     @Override
     public void onClick(View v) {
@@ -107,10 +109,14 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this).edit();
                     editor.putBoolean("mode",true);
                     editor.apply();
+                    SettingsActivity.USEBINGPIC=SettingsActivity.BINGPIC;
+                    Toast.makeText(SettingsActivity.this,"每日一图已开启",Toast.LENGTH_SHORT).show();
                 }else {
                     SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this).edit();
                     editor.putBoolean("mode",false);
                     editor.apply();
+                    SettingsActivity.USEBINGPIC=SettingsActivity.DISBING;
+                    Toast.makeText(SettingsActivity.this,"每日一图已关闭",Toast.LENGTH_SHORT).show();
                 }
                  break;
             case R.id.button_one:
@@ -133,8 +139,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 handleService();
                 Toast.makeText(this,"成功设置后台刷新频率为8小时",Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.change_background:
+                Intent intent=new Intent(SettingsActivity.this,ChooseBackgroundActivity.class);
+                startActivity(intent);
             default:
                 break;
+
         }
 
     }
@@ -146,8 +156,28 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 stopService(intent);
             }
             startService(intent);
-        } else if (SettingsActivity.SERVICE == false) {
+        } else if (SettingsActivity.SERVICE == SettingsActivity.DISSERVICE) {
             stopService(intent);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("MODE",false)){
+            toggleButton.setChecked(true);
+            timelayout.setVisibility(View.VISIBLE);
+        }else{
+            toggleButton.setChecked(false);
+            timelayout.setVisibility(View.GONE);
+        }
+        if (SettingsActivity.USEBINGPIC){
+            toggleButton2.setChecked(true);
+            SettingsActivity.USEBINGPIC=SettingsActivity.BINGPIC;
+        }else {
+            toggleButton2.setChecked(false);
+            SettingsActivity.USEBINGPIC=SettingsActivity.DISBING;
         }
     }
 }

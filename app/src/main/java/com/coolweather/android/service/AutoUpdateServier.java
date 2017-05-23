@@ -1,16 +1,22 @@
 package com.coolweather.android.service;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.coolweather.android.R;
+import com.coolweather.android.WeatherActivity;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
@@ -66,6 +72,17 @@ public class AutoUpdateServier extends Service {
                         SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(AutoUpdateServier.this).edit();
                         editor.putString("weather",responseText);
                         editor.apply();
+                        if (weather.alarmsList!=null){
+                            String title=weather.alarmsList.get(weather.alarmsList.size()).title;
+                            Intent intent=new Intent(AutoUpdateServier.this, WeatherActivity.class);
+                            PendingIntent pi=PendingIntent.getActivity(AutoUpdateServier.this,0,intent,0);
+                            NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                            Notification notification=new NotificationCompat.Builder(AutoUpdateServier.this)
+                                                            .setContentTitle(title).setContentIntent(pi)
+                                                            .setSmallIcon(R.mipmap.launcher_img)
+                                                            .build();
+                            manager.notify(1,notification);
+                        }
                     }
                 }
             });

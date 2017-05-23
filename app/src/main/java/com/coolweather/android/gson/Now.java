@@ -16,5 +16,15 @@ public class Now {
         @SerializedName("txt")
         public String info;
     }
+    public String hum;
+
+    @SerializedName("wind")
+    public Wind wind;
+    public  class Wind{
+        @SerializedName("dir")
+        public String direction;
+        @SerializedName("sc")
+        public String force;
+    }
 
 }

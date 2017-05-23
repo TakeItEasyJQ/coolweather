@@ -34,6 +34,8 @@
 
                     <include layout="@layout/forecast"/>
                     <include layout="@layout/aqi"/>
+                    <include layout="@layout/alarms_layout"/>
+                    <include layout="@layout/wind"/>
                     <include layout="@layout/suggestion"/>
                 </LinearLayout>
             </ScrollView>

@@ -27,7 +27,8 @@
             android:exported="true" />
 
         <activity android:name=".ChooseCityActivity" />
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".ChooseBackgroundActivity"></activity>
     </application>
 
 </manifest>

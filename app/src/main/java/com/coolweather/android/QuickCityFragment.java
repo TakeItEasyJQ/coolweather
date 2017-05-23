@@ -2,6 +2,7 @@ package com.coolweather.android;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.renderscript.Sampler;
@@ -47,6 +48,7 @@ public class QuickCityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view=inflater.inflate(R.layout.quick_city,container,false);
         listView=(ListView)view.findViewById(R.id.quick_listview);
+        listView.setCacheColorHint(Color.TRANSPARENT);
         adaper=new CityAdaper(getContext(),R.layout.city_item,cityList);
         listView.setAdapter(adaper);
         setting=(Button)view.findViewById(R.id.settings);
@@ -56,6 +58,7 @@ public class QuickCityFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent=new Intent(getContext(),ChooseCityActivity.class);
                 startActivity(intent);
+                getActivity().finish();
             }
         });
         setting.setOnClickListener(new View.OnClickListener() {
@@ -75,7 +78,7 @@ public class QuickCityFragment extends Fragment {
                 HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-//                        Toast.makeText(getActivity(),"加载失败...",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"加载失败...",Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
 
