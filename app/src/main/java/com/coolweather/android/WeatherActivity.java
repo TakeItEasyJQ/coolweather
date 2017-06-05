@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -33,7 +32,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class WeatherActivity extends AppCompatActivity {
-    private static final String TAG = "WeatherActivity";
     private ScrollView weatherlayout;
     private TextView titleCity;
     private TextView titleUpdateTime;
@@ -95,43 +93,49 @@ public class WeatherActivity extends AppCompatActivity {
                 ChooseAreaFragment.queryQuickCities();
             }
         });
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if ("new".equals(getIntent().getStringExtra("change"))){
             requestWeather(mWeatherId);
-        }
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = prefs.getString("weather", null); //第二个为默认值即当找不到键对应值时返回此致
-        if (weatherString != null) {
-            Weather weather = Utility.handleWeatherResponse(weatherString);
-            mWeatherId = weather.basic.weatherId;
-            requestWeather(mWeatherId);
+        }else {
+            String weatherString = prefs.getString("weather", null); //第二个为默认值即当找不到键对应值时返回此致
+            if (weatherString != null) {
+                Weather weather = Utility.handleWeatherResponse(weatherString);
+                mWeatherId = weather.basic.weatherId;
+                requestWeather(mWeatherId);
 
-        } else {                                                  //第一次会执行此句
-            SettingsActivity.USEBINGPIC=SettingsActivity.BINGPIC;
-            SettingsActivity.SERVICE=SettingsActivity.AUTOSERVICE;
-            SharedPreferences.Editor editor=prefs.edit();
-            editor.putBoolean("mode",true);
-            editor.apply();
-            mWeatherId = getIntent().getStringExtra("weather_id");         //此前在这里出了个错   错误写为Sring mWeather=... 此时为新的对象并不是外面的没Weather了
-            weatherlayout.setVisibility(View.INVISIBLE);          //此时mWeather已赋值为weatherId
-            String weatherURL = "https://free-api.heweather.com/v5/weather?city=" + mWeatherId + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
-            HttpUtil.sendOkHttpRequest(weatherURL, new Callback() {                                    //第一次启动时将所选城市的信息存入QuickCity的DB中就可以啦
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
-                }
+            } else {                                                  //第一次会执行此句
+                SettingsActivity.USEBINGPIC=SettingsActivity.BINGPIC;
+                SettingsActivity.SERVICE=SettingsActivity.AUTOSERVICE;
+                SharedPreferences.Editor editor=prefs.edit();
+                editor.putBoolean("mode",true);
+                editor.apply();
+                mWeatherId = getIntent().getStringExtra("weather_id");         //此前在这里出了个错   错误写为Sring mWeather=... 此时为新的对象并不是外面的没Weather了
+                weatherlayout.setVisibility(View.INVISIBLE);          //此时mWeather已赋值为weatherId
+                String weatherURL = "https://free-api.heweather.com/v5/weather?city=" + mWeatherId + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
+                HttpUtil.sendOkHttpRequest(weatherURL, new Callback() {                                    //第一次启动时将所选城市的信息存入QuickCity的DB中就可以啦
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Toast.makeText(WeatherActivity.this, "获取天气信息失败,请检查网络设置", Toast.LENGTH_SHORT).show();
+                    }
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String responseText=response.body().string();
-                    SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                    editor.putString("weather",responseText);
-                    editor.apply();
-                    Weather weather=Utility.handleWeatherResponse(responseText);
-                    QuickCity city=Utility.handleQuickCityResponse(weather);
-                    city.save();
-                }
-            });
-            requestWeather(mWeatherId);
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseText=response.body().string();
+                        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                        editor.putString("weather",responseText);
+                        editor.apply();
+                        final Weather weather=Utility.handleWeatherResponse(responseText);
+                         runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                showWeatherInfo(weather);
+                            }
+                        });
+                        QuickCity city=Utility.handleQuickCityResponse(weather);
+                        city.save();
+                    }
+                });
+            }
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -155,18 +159,11 @@ public class WeatherActivity extends AppCompatActivity {
                 loadBingPic();
             }
         }
-//        String bingPic = prefs.getString("bing_pic", null);
-//        if (bingPic != null) {
-//            Glide.with(this).load(bingPic).into(bingPicImg);
-//        } else {
-//            loadBingPic();
-//        }
         }
 
 
     public  void requestWeather(final String weatherId) {
-
-        String weatherUrl = "https://free-api.heweather.com/v5/weather?city=" + weatherId + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
+        String weatherUrl = "https://free-api.heweather.com/v5/weather?city=" +weatherId+ "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -175,13 +172,18 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (weather != null && "ok".equals(weather.status)) {
+                        if (weather != null &&  "ok".equals(weather.status)) {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
                             editor.apply();
                             showWeatherInfo(weather);
-                        } else {
-                            Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        }else if (weather!=null&&"no more requests".equals(weather.status)){
+                            Toast.makeText(WeatherActivity.this,"对不起，暂时用于学习交流的免费接口每日请求数量已达上限，抱歉！",Toast.LENGTH_SHORT).show();
+                        }else if (weather!=null&&"unknown city".equals(weather.status)){
+                            Toast.makeText(WeatherActivity.this,"天气接口出现错误，可能维护中，请稍后再试",Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(WeatherActivity.this, "连接超时", Toast.LENGTH_SHORT).show();
                         }
                         swipeRefresh.setRefreshing(false);
                     }
@@ -195,8 +197,9 @@ public class WeatherActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(WeatherActivity.this, "获取天气信息失败...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(WeatherActivity.this, "获取天气信息失败，请检查网络设置", Toast.LENGTH_SHORT).show();
                         swipeRefresh.setRefreshing(false);
+                        loadBingPic();
                     }
                 });
             }
@@ -275,7 +278,9 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private  void loadBingPic() {
-        if (SettingsActivity.USEBINGPIC){//如果允许使用每日一图的话  在MainActivity中默认设置了true
+        SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);
+        boolean UseBing=pref.getBoolean("mode",false);
+        if (UseBing){//如果允许使用每日一图的话  在MainActivity中默认设置了true
             String requestBingPic = "http://guolin.tech/api/bing_pic";
             HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
                 @Override
@@ -293,7 +298,6 @@ public class WeatherActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
-                            Log.d(TAG, "run: in bingpic");
                         }
                     });
                 }
@@ -306,7 +310,6 @@ public class WeatherActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Glide.with(WeatherActivity.this).load(bgPic).into(bingPicImg);
-                    Log.d(TAG, "run: in disbing");
                 }
             });
         }

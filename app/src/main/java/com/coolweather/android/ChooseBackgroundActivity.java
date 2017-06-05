@@ -35,7 +35,7 @@ public class ChooseBackgroundActivity extends AppCompatActivity implements View.
 
     }
     public void onClick(View v) {
-        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(this).edit();
+        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(this).edit();
         int background;
         switch (v.getId()){
             case R.id.bg_1:

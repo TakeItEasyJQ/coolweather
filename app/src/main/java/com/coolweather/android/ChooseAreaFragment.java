@@ -104,8 +104,7 @@ public class ChooseAreaFragment extends Fragment {
                         activity.swipeRefresh.setRefreshing(true);
                         activity.requestWeather(weatherId);
                     }
-                    else if (getActivity() instanceof ChooseCityActivity){     //是不是得写成一个AysnTask
-
+                    else if (getActivity() instanceof ChooseCityActivity){
                         String weatherUrl = "https://free-api.heweather.com/v5/weather?city=" + weatherId + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
                         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
                             @Override
@@ -115,8 +114,8 @@ public class ChooseAreaFragment extends Fragment {
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                final String responseText=response.body().string();
+                            public void onResponse(Call call, Response response) throws IOException {         //我觉得只不过就是为了得到QuickCity对象号存入DB中而已
+                                final String responseText=response.body().string();                           //况且RequestWeather()已将天气信息写入SP中了
                                 final Weather weather= Utility.handleWeatherResponse(responseText);
                                 final String weatherid=weather.basic.weatherId;
                                 getActivity().runOnUiThread(new Runnable() {
@@ -261,7 +260,7 @@ public class ChooseAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "加载失败，请检查网络设置", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -281,5 +280,11 @@ public class ChooseAreaFragment extends Fragment {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
     }
 }

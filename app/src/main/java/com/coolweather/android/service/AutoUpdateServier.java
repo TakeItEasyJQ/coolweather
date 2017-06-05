@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.coolweather.android.R;
+import com.coolweather.android.SettingsActivity;
 import com.coolweather.android.WeatherActivity;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
@@ -39,17 +40,19 @@ public class AutoUpdateServier extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         updateWeather();
         updateBingPic();
-        int  hour=intent.getIntExtra("time",8);
+        int hour=intent.getIntExtra("time",8);
         AlarmManager manager=(AlarmManager)getSystemService(ALARM_SERVICE);
 //        int anHour=hour*60*60*1000;
-        int anHour=8*60*60*1000;
+        int anHour=hour*60*60*1000;
         long triggerAtTime= SystemClock.elapsedRealtime()+anHour;
         Intent i=new Intent(this,AutoUpdateServier.class);
+        i.putExtra("time",8);
         PendingIntent pi=PendingIntent.getActivity(this,0,i,0);
         manager.cancel(pi);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
         Log.d("AutoService", "onStartCommand: "+hour);
-        return super.onStartCommand(intent,flags,startId);
+//        return super.onStartCommand(intent,flags,startId);
+        return START_REDELIVER_INTENT;
     }
     private void updateWeather(){
         SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(this);
@@ -79,7 +82,7 @@ public class AutoUpdateServier extends Service {
                             NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
                             Notification notification=new NotificationCompat.Builder(AutoUpdateServier.this)
                                                             .setContentTitle(title).setContentIntent(pi)
-                                                            .setSmallIcon(R.mipmap.launcher_img)
+                                                            .setSmallIcon(R.mipmap.img_launcher)
                                                             .build();
                             manager.notify(1,notification);
                         }
@@ -89,27 +92,31 @@ public class AutoUpdateServier extends Service {
         }
     }
     private void updateBingPic(){
-        String requestBingPic="http://guolin.tech/api/bing_pic";
-        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
+        if (SettingsActivity.BINGPIC==SettingsActivity.USEBINGPIC){
+            String requestBingPic="http://guolin.tech/api/bing_pic";
+            HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseText=response.body().string();
-                SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(AutoUpdateServier.this).edit();
-                editor.putString("bing_pic",responseText);
-                editor.apply();
-            }
-        });
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseText=response.body().string();
+                    SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(AutoUpdateServier.this).edit();
+                    editor.putString("bing_pic",responseText);
+                    editor.apply();
+                }
+            });
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d("AutoService", "onDestroy: destroy servier");
+        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putBoolean("unshow",false);
     }
 
     @Override

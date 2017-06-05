@@ -1,11 +1,8 @@
 package com.coolweather.android;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.renderscript.Sampler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -16,20 +13,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.coolweather.android.db.QuickCity;
-import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.CityAdaper;
-import com.coolweather.android.util.HttpUtil;
-import com.coolweather.android.util.Utility;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
  * Created by My Computer on 2017/5/16.
@@ -43,6 +30,7 @@ public class QuickCityFragment extends Fragment {
     private Button add;
     private QuickCity selectedquickCity;
     private QuickCity deletecity;
+    private static final String TAG = "QuickCityFragment";
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -66,37 +54,20 @@ public class QuickCityFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent=new Intent(getContext(),SettingsActivity.class);
                 startActivity(intent);
+                WeatherActivity activity=(WeatherActivity)getActivity();
+                activity.drawerLayout.closeDrawers();
             }
         });
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {        //原来下面的添加城市时请求两次天气
                 selectedquickCity=cityList.get(position);
                 String weatherid=selectedquickCity.getWeatherid();
                 WeatherActivity.mWeatherId=weatherid;
-                String weatherUrl= "https://free-api.heweather.com/v5/weather?city=" + weatherid + "&key=bc9aa668f17648b4a2ea6f9fac4083ee";
-                HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Toast.makeText(getActivity(),"加载失败...",Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        String responseText=response.body().string();
-                        Weather weather=Utility.handleWeatherResponse(responseText);
-                        Utility.handleQuickCityResponse(weather);
-                        SharedPreferences.Editor editor= PreferenceManager.getDefaultSharedPreferences(getContext()).edit();
-                        editor.putString("weather",responseText);
-                        editor.apply();
-                        Intent intent=new Intent(getActivity(),WeatherActivity.class);
+                Intent intent=new Intent(getActivity(),WeatherActivity.class);
                         intent.putExtra("change","new");
                         startActivity(intent);
                         getActivity().finish();
-                    }
-                });
-
             }
         });
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -117,7 +88,4 @@ public class QuickCityFragment extends Fragment {
         });
         return view;
     }
-
-
-
 }
