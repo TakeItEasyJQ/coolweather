@@ -87,6 +87,7 @@ public class WeatherActivity extends AppCompatActivity {
         force=(TextView)findViewById(R.id.wind_sc);
         hum=(TextView)findViewById(R.id.wind_hum);
         alarmslayout=(LinearLayout)findViewById(R.id.alarms_layout);
+        alarmslayout.setVisibility(View.GONE);
         navButton = (Button) findViewById(R.id.nav_button);
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,14 +150,14 @@ public class WeatherActivity extends AppCompatActivity {
         if (a){
             String bingPic = prefs.getString("bing_pic", null);
             if (bingPic != null) {
-                Glide.with(this).load(bingPic).into(bingPicImg);
+                Glide.with(getApplicationContext()).load(bingPic).into(bingPicImg);
             } else {
                 loadBingPic();
             }
         }else {
             int background=prefs.getInt("background",0);
             if (background!=0){
-                Glide.with(this).load(background).into(bingPicImg);
+                Glide.with(getApplicationContext()).load(background).into(bingPicImg);
             }else {
                 loadBingPic();
             }
@@ -304,7 +305,7 @@ public class WeatherActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
+                            Glide.with(getApplicationContext()).load(bingPic).into(bingPicImg);
                         }
                     });
                 }
@@ -316,7 +317,7 @@ public class WeatherActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Glide.with(WeatherActivity.this).load(bgPic).into(bingPicImg);
+                    Glide.with(getApplicationContext()).load(bgPic).into(bingPicImg);
                 }
             });
         }
