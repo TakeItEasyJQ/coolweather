@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.coolweather.android.db.QuickCity;
+import com.coolweather.android.gson.Alarms;
 import com.coolweather.android.gson.Forecast;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
@@ -169,6 +171,7 @@ public class WeatherActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
                 final Weather weather = Utility.handleWeatherResponse(responseText);
+//                final Alarms alarms=Utility.handleAlarmsResponse(responseText);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -177,6 +180,13 @@ public class WeatherActivity extends AppCompatActivity {
                             editor.putString("weather", responseText);
                             editor.apply();
                             showWeatherInfo(weather);
+//                            if (alarms!=null){
+//                                showAlarmsInfo(alarms);
+//                                alarmslayout.setVisibility(View.VISIBLE);
+//                            }else{
+//                                alarmslayout.setVisibility(View.GONE);
+//                            }
+
                         }else if (weather!=null&&"no more requests".equals(weather.status)){
                             Toast.makeText(WeatherActivity.this,"对不起，暂时用于学习交流的免费接口每日请求数量已达上限，抱歉！",Toast.LENGTH_SHORT).show();
                         }else if (weather!=null&&"unknown city".equals(weather.status)){
@@ -234,18 +244,6 @@ public class WeatherActivity extends AppCompatActivity {
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
         }
-        alarmslayout.removeAllViews();
-        if (weather.alarmsList!=null){
-            alarmslayout.setVisibility(View.VISIBLE);
-            TextView alarmstitle=(TextView)findViewById(R.id.alarms_title);
-            TextView alarmstxt=(TextView)findViewById(R.id.alarms_txt);
-            String title=weather.alarmsList.get(weather.alarmsList.size()).title;
-            String txt=" "+" "+weather.alarmsList.get(weather.alarmsList.size()).txt;
-            alarmstitle.setText(title);
-            alarmstxt.setText(txt);
-        }else{
-            alarmslayout.setVisibility(View.GONE);
-        }
         if (weather.aqi != null) {
             int i=Integer.valueOf(weather.aqi.city.aqi);
             if (0<=i&&i<=50){
@@ -276,6 +274,15 @@ public class WeatherActivity extends AppCompatActivity {
         dressText.setText(dress);
         weatherlayout.setVisibility(View.VISIBLE);
     }
+//    public void showAlarmsInfo(Alarms alarms){
+//        alarmslayout.removeAllViews();
+//        String title=alarms.title;
+//        String txt=alarms.txt;
+//        TextView alarmsTitle=(TextView)findViewById(R.id.alarms_title);
+//        TextView alarmsTxt=(TextView)findViewById(R.id.alarms_txt);
+//        alarmsTitle.setText(title);
+//        alarmsTxt.setText(txt);
+//    }
 
     private  void loadBingPic() {
         SharedPreferences pref=PreferenceManager.getDefaultSharedPreferences(this);

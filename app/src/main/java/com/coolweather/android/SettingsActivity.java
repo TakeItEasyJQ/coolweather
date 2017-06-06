@@ -14,7 +14,6 @@ import com.coolweather.android.service.AutoUpdateServier;
 
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener{
-    private static final String TAG = "SettingsActivity";
     private ToggleButton toggleButton;
     private ToggleButton toggleButton2;
     private LinearLayout timelayout;

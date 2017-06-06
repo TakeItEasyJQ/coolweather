@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,6 +31,7 @@ import org.litepal.crud.DataSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -109,7 +111,12 @@ public class ChooseAreaFragment extends Fragment {
                         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
-                                Toast.makeText(getActivity(), "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getActivity(), "获取天气信息失败，请检查网络设置", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                                 e.printStackTrace();
                             }
 

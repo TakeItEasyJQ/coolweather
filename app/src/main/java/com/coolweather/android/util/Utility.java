@@ -6,6 +6,7 @@ import com.coolweather.android.db.City;
 import com.coolweather.android.db.Country;
 import com.coolweather.android.db.Province;
 import com.coolweather.android.db.QuickCity;
+import com.coolweather.android.gson.Alarms;
 import com.coolweather.android.gson.Weather;
 import com.google.gson.Gson;
 
@@ -88,6 +89,17 @@ public class Utility {
         }
         return  null;
     }
+//    public static Alarms handleAlarmsResponse(String response){
+//        try {
+//            JSONObject alarmsobejct=new JSONObject(response);
+//            JSONArray alarmsArray=alarmsobejct.getJSONArray("alarms");
+//            String  AlarmsContent=alarmsArray.getJSONObject(0).toString();
+//            return new Gson().fromJson(AlarmsContent,Alarms.class);
+//        }catch (JSONException e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
     public static QuickCity handleQuickCityResponse(Weather weather){
         String cityName=weather.basic.cityname;
         String cityDegree=weather.now.temperature+"℃";

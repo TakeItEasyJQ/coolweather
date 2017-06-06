@@ -7,23 +7,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import android.widget.Toast;
-
 import com.coolweather.android.R;
 import com.coolweather.android.SettingsActivity;
 import com.coolweather.android.WeatherActivity;
+import com.coolweather.android.gson.Alarms;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
-
 import java.io.IOException;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -42,7 +37,6 @@ public class AutoUpdateServier extends Service {
         updateBingPic();
         int hour=intent.getIntExtra("time",8);
         AlarmManager manager=(AlarmManager)getSystemService(ALARM_SERVICE);
-//        int anHour=hour*60*60*1000;
         int anHour=hour*60*60*1000;
         long triggerAtTime= SystemClock.elapsedRealtime()+anHour;
         Intent i=new Intent(this,AutoUpdateServier.class);
@@ -50,8 +44,6 @@ public class AutoUpdateServier extends Service {
         PendingIntent pi=PendingIntent.getActivity(this,0,i,0);
         manager.cancel(pi);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
-        Log.d("AutoService", "onStartCommand: "+hour);
-//        return super.onStartCommand(intent,flags,startId);
         return START_REDELIVER_INTENT;
     }
     private void updateWeather(){
@@ -71,21 +63,22 @@ public class AutoUpdateServier extends Service {
                 public void onResponse(Call call, Response response) throws IOException {
                     String responseText=response.body().string();
                     Weather weather=Utility.handleWeatherResponse(responseText);
+//                    Alarms alarms=Utility.handleAlarmsResponse(responseText);
                     if (weather!=null&&"ok".equals(weather.status)){
                         SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(AutoUpdateServier.this).edit();
                         editor.putString("weather",responseText);
                         editor.apply();
-                        if (weather.alarmsList!=null){
-                            String title=weather.alarmsList.get(weather.alarmsList.size()).title;
-                            Intent intent=new Intent(AutoUpdateServier.this, WeatherActivity.class);
-                            PendingIntent pi=PendingIntent.getActivity(AutoUpdateServier.this,0,intent,0);
-                            NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-                            Notification notification=new NotificationCompat.Builder(AutoUpdateServier.this)
-                                                            .setContentTitle(title).setContentIntent(pi)
-                                                            .setSmallIcon(R.mipmap.img_launcher)
-                                                            .build();
-                            manager.notify(1,notification);
-                        }
+//                        if (alarms!=null){
+//                            String title=alarms.title;
+//                            Intent intent=new Intent(AutoUpdateServier.this, WeatherActivity.class);
+//                            PendingIntent pi=PendingIntent.getActivity(AutoUpdateServier.this,0,intent,0);
+//                            NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//                            Notification notification=new NotificationCompat.Builder(AutoUpdateServier.this)
+//                                                            .setContentTitle(title).setContentIntent(pi)
+//                                                            .setSmallIcon(R.mipmap.img_launcher)
+//                                                            .build();
+//                            manager.notify(1,notification);
+//                        }
                     }
                 }
             });
@@ -114,14 +107,7 @@ public class AutoUpdateServier extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("AutoService", "onDestroy: destroy servier");
         SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean("unshow",false);
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Log.d("AutoService", "onCreate:create servier ");
     }
 }
